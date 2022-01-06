@@ -1,0 +1,87 @@
+global function Brute_Init
+
+void function Brute_Init() {
+    PrecacheModel( $"models/titans/buddy/titan_buddy.mdl" )
+	PrecacheModel( $"models/weapons/arms/buddypov.mdl" )
+	PrecacheParticleSystem( $"P_BT_eye_SM" )
+
+    #if SERVER
+        AddCallback_OnPilotBecomesTitan( InvertTitanLoadoutOnTitan )
+        // AddCallback_OnUpdateDerivedPlayerTitanLoadout( InvertTitanLoadoutOnLoadout )
+    #endif
+}
+
+#if SERVER
+
+    void function InvertTitanLoadout( entity player )
+    {
+        if ( InvertedTitansEnabled() ) {
+            array<entity> weapons = player.GetMainWeapons()
+            array<entity> offhand = player.GetOffhandWeapons()
+
+            for (int i = 0; i < 5; i++)
+            {
+                switch ( offhand[i].GetWeaponClassName() )
+                {
+                    // TONE
+                    case "mp_titanability_sonar_pulse":
+                        player.TakeOffhandWeapon(i)
+                        player.GiveOffhandWeapon( "mp_titanability_hover", OFFHAND_ANTIRODEO )
+                        break;
+
+                    case "mp_titanweapon_tracker_rockets":
+                        player.TakeOffhandWeapon(i)
+                        player.GiveOffhandWeapon( "mp_titanweapon_shoulder_rockets", OFFHAND_ORDNANCE )
+                        player.GetOffhandWeapons()[i].SetMods(["upgradeCore_MissileRack_Vanguard"])
+                        break;
+
+                    case "mp_titanability_particle_wall":
+                        player.TakeOffhandWeapon(i)
+                        player.GiveOffhandWeapon( "mp_titanweapon_vortex_shield_ion", OFFHAND_SPECIAL )
+                        break;
+                }
+            }
+
+            switch ( weapons[0].GetWeaponClassName() )
+            {
+                case "mp_titanweapon_particle_accelerator":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_lstar" )
+                    break;
+
+                case "mp_titanweapon_leadwall":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_mastiff" )
+                    break;
+
+                case "mp_titanweapon_meteor":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_mgl" )
+                    break;
+
+                case "mp_titanweapon_predator_cannon":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_lmg" )
+                    break;
+
+                case "mp_titanweapon_sniper":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_sniper" )
+                    break;
+
+                case "mp_titanweapon_xo16_vanguard":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_rspn101" )
+                    break;
+
+                case "mp_titanweapon_sticky_40mm":
+                    player.TakeWeaponNow( weapons[0].GetWeaponClassName() )
+                    player.GiveWeapon( "mp_weapon_dmr" )
+                    break;
+            }
+
+            SendHudMessage( player, "Pilot loadout equipped!", -1, 0.4, 255, 255, 255, 255, 0.15, 3.0, 0.5 )
+
+        }
+    }
+#endif
